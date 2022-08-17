@@ -1,0 +1,35 @@
+name: Pull Request Title Format
+
+on:
+  pull_request:
+    branches:
+      - '*'
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+jobs:
+  prTitle:
+    name: Check pull request title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Verify PR Title Uses Conventional Commits
+        uses: aslafy-z/conventional-pr-title-action@v2.4.0
+        with:
+          success-state: Title follows the specification.
+          failure-state: Title does not follow the specification.
+          context-name: conventional-pr-title
+          preset: conventional-changelog-conventionalcommits@latest
+      - name: Verify PR Title Uses Specific Conventional Commits Regex
+        uses: clowdhaus/actions/pr-title@v0.2.0
+        with:
+          title-regex: '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([\w|,|\-|\|]+\))?(!)?\:\s.*$'
+          on-fail-request-changes: true
+          on-fail-add-comment: true
+          on-fail-message: "Your pull request title does not match the required format. The title should be in the conventional commit (https://www.conventionalcommits.org/en/v1.0.0-beta.4/) format. For example, see the following.\n\n```\nci(automation): add pull request title verification workflow\n```"
+          on-fail-fail-action: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
